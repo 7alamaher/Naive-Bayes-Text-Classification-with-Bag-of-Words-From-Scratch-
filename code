@@ -11,7 +11,8 @@ test = pd.read_csv("ModApte_test.csv")
 print("Train size:", len(train))
 print("Test size:", len(test))
 
-train.head()
+print(train.columns)
+print(test.columns)
 
 #Convert to binary classification , this mean "earn or not earn" base what we have in topics coloumn
 
