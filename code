@@ -1,0 +1,38 @@
+#Import Libraries
+import pandas as pd
+import math
+ 
+
+#Load Dataset
+
+train = pd.read_csv("ModApte_train.csv")
+test = pd.read_csv("ModApte_test.csv")
+
+print("Train size:", len(train))
+print("Test size:", len(test))
+
+train.head()
+
+#Convert to binary classification , this mean "earn or not earn" base what we have in topics coloumn
+
+def convert_to_binary(label):
+    if isinstance(label, str):
+        return 1 if "earn" in label else 0
+    return 0
+
+train["binary_label"] = train["topics"].apply(convert_to_binary)
+test["binary_label"] = test["topics"].apply(convert_to_binary)
+
+print(train["binary_label"].value_counts())
+
+
+# Preprocessing 
+
+def preprocess(text):
+    text = str(text).lower()
+    text = re.sub(r'[^a-z\s]', '', text)
+    return text.split()
+
+train["processed"] = train["text"].apply(preprocess)
+test["processed"] = test["text"].apply(preprocess)
+
