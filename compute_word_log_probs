@@ -1,0 +1,51 @@
+#  Compute Naive Bayes probabilities with Laplace smoothing
+#we want to answer questions like:
+# If an article is earn, how likely is it to contain the word “profit”?
+# That is written as: P(word | class)
+
+# Output: We will compute: 
+# P(word | earn)
+# P(word | not-earn)
+# But we store them as log probabilities to avoid math underflow.
+
+import math
+
+def compute_word_log_probs(vocab,
+                           word_counts_earn,
+                           word_counts_not_earn,
+                           total_words_earn,
+                           total_words_not_earn):
+
+    vocab_size = len(vocab)
+
+    log_prob_earn = {}
+    log_prob_not_earn = {}
+
+    for word in vocab:
+        # How many times this word appeared in each class
+        count_earn = word_counts_earn.get(word, 0)
+        count_not_earn = word_counts_not_earn.get(word, 0)
+
+        # Laplace smoothing
+        prob_word_given_earn = (count_earn + 1) / (total_words_earn + vocab_size)
+        prob_word_given_not_earn = (count_not_earn + 1) / (total_words_not_earn + vocab_size)
+
+        # Store LOG probabilities
+        log_prob_earn[word] = math.log(prob_word_given_earn)
+        log_prob_not_earn[word] = math.log(prob_word_given_not_earn)
+
+    return log_prob_earn, log_prob_not_earn
+
+
+# Test the function using the counts we got from the training data
+log_prob_earn, log_prob_not_earn = compute_word_log_probs(
+    vocab,
+    word_counts_earn,
+    word_counts_not_earn,
+    total_words_earn,
+    total_words_not_earn
+)
+
+print("Example word probabilities:")
+print("log P('profit' | earn):", log_prob_earn.get("profit"))
+print("log P('profit' | not-earn):", log_prob_not_earn.get("profit"))
