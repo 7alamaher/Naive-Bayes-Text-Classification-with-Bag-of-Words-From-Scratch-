@@ -1,0 +1,59 @@
+
+# Compute class prior probabilities
+num_docs = len(train_f)
+num_earn = sum(train_f["binary_label"] == 1)
+num_not_earn = sum(train_f["binary_label"] == 0)
+
+log_prior_earn = math.log(num_earn / num_docs)
+log_prior_not_earn = math.log(num_not_earn / num_docs)
+
+print("log prior earn:", log_prior_earn)
+print("log prior not-earn:", log_prior_not_earn)
+
+# Predict class for ONE article
+
+def predict_one(tokens,
+                vocab,
+                log_prob_earn,
+                log_prob_not_earn,
+                log_prior_earn,
+                log_prior_not_earn):
+    """
+    tokens: list of words from one article
+    Returns:
+      1 -> earn
+      0 -> not-earn
+    """
+
+    # Start with the class priors
+    score_earn = log_prior_earn
+    score_not_earn = log_prior_not_earn
+
+    # Add word evidence
+    for word in tokens:
+        # Ignore words not in vocabulary
+        if word in vocab:
+            score_earn += log_prob_earn[word]
+            score_not_earn += log_prob_not_earn[word]
+
+    # Choose the class with the higher score
+    if score_earn > score_not_earn:
+        return 1
+    else:
+        return 0
+
+# Pick one article from training data
+sample_tokens = train_f.iloc[0]["tokens"]
+true_label = train_f.iloc[0]["binary_label"]
+
+predicted_label = predict_one(
+    sample_tokens,
+    vocab,
+    log_prob_earn,
+    log_prob_not_earn,
+    log_prior_earn,
+    log_prior_not_earn
+)
+
+print("True label:", true_label)
+print("Predicted label:", predicted_label)
