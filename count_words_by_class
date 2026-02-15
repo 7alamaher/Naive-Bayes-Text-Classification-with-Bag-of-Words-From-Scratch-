@@ -25,3 +25,15 @@ def count_words_by_class(token_lists, labels):
                 total_words_not_earn += 1
 
     return word_counts_earn, word_counts_not_earn, total_words_earn, total_words_not_earn
+
+# Run using training data
+token_lists = train_f["tokens"].tolist()
+labels = train_f["binary_label"].tolist()
+
+word_counts_earn, word_counts_not_earn, total_words_earn, total_words_not_earn = count_words_by_class(token_lists, labels)
+
+print("Total words in earn articles:", total_words_earn)
+print("Total words in not-earn articles:", total_words_not_earn)
+
+print("Unique words seen in earn articles:", len(word_counts_earn))
+print("Unique words seen in not-earn articles:", len(word_counts_not_earn))
