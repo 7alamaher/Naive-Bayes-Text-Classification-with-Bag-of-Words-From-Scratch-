@@ -1,0 +1,52 @@
+#  Predict for MANY articles
+
+def predict_many(token_lists,
+                 vocab,
+                 log_prob_earn,
+                 log_prob_not_earn,
+                 log_prior_earn,
+                 log_prior_not_earn):
+    """
+    Predict labels for many documents.
+    Returns a list of predicted labels.
+    """
+    predictions = []
+
+    for tokens in token_lists:
+        y_pred = predict_one(
+            tokens,
+            vocab,
+            log_prob_earn,
+            log_prob_not_earn,
+            log_prior_earn,
+            log_prior_not_earn
+        )
+        predictions.append(y_pred)
+
+    return predictions
+
+# Compute accuracy
+
+def compute_accuracy(y_true, y_pred):
+    correct = 0
+    for t, p in zip(y_true, y_pred):
+        if t == p:
+            correct += 1
+    return correct / len(y_true)
+
+# Run predictions on test set
+test_tokens = test_f["tokens"].tolist()
+test_labels = test_f["binary_label"].tolist()
+
+test_predictions = predict_many(
+    test_tokens,
+    vocab,
+    log_prob_earn,
+    log_prob_not_earn,
+    log_prior_earn,
+    log_prior_not_earn
+)
+
+accuracy = compute_accuracy(test_labels, test_predictions)
+
+print("Test accuracy:", accuracy)
