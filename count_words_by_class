@@ -1,0 +1,27 @@
+def count_words_by_class(token_lists, labels):
+    # Dictionary for counting words in earn articles
+    word_counts_earn = {}
+
+    # Dictionary for counting words in not-earn articles
+    word_counts_not_earn = {}
+
+    # Total number of word tokens (including repeats) in each class
+    total_words_earn = 0
+    total_words_not_earn = 0
+
+    # Go through each document (article) one by one
+    for tokens, y in zip(token_lists, labels):
+
+        # If this article is "earn"
+        if y == 1:
+            for w in tokens:
+                word_counts_earn[w] = word_counts_earn.get(w, 0) + 1
+                total_words_earn += 1
+
+        # If this article is "not-earn"
+        else:
+            for w in tokens:
+                word_counts_not_earn[w] = word_counts_not_earn.get(w, 0) + 1
+                total_words_not_earn += 1
+
+    return word_counts_earn, word_counts_not_earn, total_words_earn, total_words_not_earn
