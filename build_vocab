@@ -1,0 +1,30 @@
+# Build vocabulary from fold training tokens ONLY
+# We Try to figure out Which words appear at least once (and how often) --->To know what words exist
+def build_vocab(token_lists, min_freq=1):
+    """
+    token_lists: list of token lists, e.g. 
+    [
+  ['company', 'reported', 'profit', 'rise'],
+  ['oil', 'prices', 'fell', 'market'],
+  ['shares', 'rose', 'earnings'],
+  ...
+    ]
+    min_freq: keep a word only if it appears at least min_freq times (default=1 means keep all)
+    """
+    # Count how many times each word appears in the training data
+    # this function scans every article's token list, and count how many times each word appears across ALL articles
+    word_counts = {}
+    for tokens in token_lists:
+        for w in tokens:
+            word_counts[w] = word_counts.get(w, 0) + 1
+
+    # Build the vocabulary (word -> index) // A dictionary for how the computer remembers words 
+    # show ing : “These are the words that exist in my training data.” 
+    vocab = {}
+    idx = 0
+    for w, c in word_counts.items():
+        if c >= min_freq:
+            vocab[w] = idx
+            idx += 1
+
+    return vocab, word_counts
