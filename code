@@ -1,9 +1,9 @@
 #Import Libraries
 import pandas as pd
 import math
- 
+import re  
 
-#Load Dataset
+#Load Dataset ( already split by Reuters : train + test ) 
 
 train = pd.read_csv("ModApte_train.csv")
 test = pd.read_csv("ModApte_test.csv")
@@ -14,26 +14,60 @@ print("Test size:", len(test))
 print(train.columns)
 print(test.columns)
 
-#Convert to binary classification , this mean "earn or not earn" base what we have in topics coloumn
 
-def convert_to_binary(label):
-    if isinstance(label, str):
-        return 1 if "earn" in label else 0
-    return 0
+def parse_topics(s) :
+    if not isinstance(s, str):
+        return []
+    # Find all items inside single quotes
+    return re.findall(r"'([^']+)'", s)
 
-train["binary_label"] = train["topics"].apply(convert_to_binary)
-test["binary_label"] = test["topics"].apply(convert_to_binary)
+train["topics_list"] = train["topics"].apply(parse_topics)
+test["topics_list"]  = test["topics"].apply(parse_topics)
 
-print(train["binary_label"].value_counts())
+# Keep only articles with exactly one topic
+def keep_single_labeled(df):
+    df = df.copy()
+    df["topic_count"] = df["topics_list"].apply(len)
+    df = df[df["topic_count"] == 1]   # keeps only rows with exactly 1 topic
+    return df
+
+train_f = keep_single_labeled(train)
+test_f  = keep_single_labeled(test)
+
+
+#Convert to binary classification , earn vs not-earn based on what we have in topics coloumn
+
+def convert_to_binary(topics_list):
+    # topics_list always has exactly one element after filtering
+    if topics_list[0] == "earn":
+        return 1   # earn
+    else:
+        return 0   # not-earn
+
+train_f["binary_label"] = train_f["topics_list"].apply(convert_to_binary)
+test_f["binary_label"]  = test_f["topics_list"].apply(convert_to_binary)
+
+# Check how many earn vs not-earn articles we have
+print(train_f["binary_label"].value_counts())
+
 
 
 # Preprocessing 
 
 def preprocess(text):
+    # Convert text to string and lowercase
     text = str(text).lower()
-    text = re.sub(r'[^a-z\s]', '', text)
-    return text.split()
+    
+    # Remove everything except letters and spaces
+    text = re.sub(r'[^a-z\s]', ' ', text)
+    
+    # Split text into words
+    tokens = text.split()
+    
+    return tokens
 
-train["processed"] = train["text"].apply(preprocess)
-test["processed"] = test["text"].apply(preprocess)
+# Apply preprocessing ONLY to the filtered datasets
+train_f["tokens"] = train_f["text"].apply(preprocess)
+test_f["tokens"]  = test_f["text"].apply(preprocess)
+
 
